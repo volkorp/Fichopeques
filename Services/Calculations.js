@@ -104,13 +104,52 @@ function huntIncidences(resultset){
     return incidences;
 }
 
-// main();
+function getAllTimeWorkedTime(employee){
+    // TODO:
+    let query = `SELECT time_worked FROM total_worked WHERE employee = '${employee}'`;
+    var resultset = query;
+    return '4513:12:11'; //TODO: Query tiempo trabajado total
+}
 
-// while(true){    
-//     setTimeout(function() {}, 3000);
-// };
+function getNewAllTimeWorkedTime(currentWorkedTime, timeAdding){
+    var [currentHours, currentMins, currentSecs] = currentWorkedTime.split(":");
+    var [addingHours, addingMins, addingSecs] = timeAdding.split(":");
+
+    var hours = parseInt(currentHours) + parseInt(addingHours);
+    var minutes = parseInt(currentMins) + parseInt(addingMins);
+    var seconds = parseInt(currentSecs) + parseInt(addingSecs);
+
+    return `${hours}:${minutes}:${seconds}`;
+}
+
+function addDayTimeToTotal(employee, timeWorkedToday){
+    var respuesta = `Hoy has trabajado ${timeWorkedToday}.`;
+    var workedTime = getAllTimeWorkedTime(employee);
+    
+    if (didRankChanged(employee, workedTime)){
+        respuesta += `\\n\\n¡Enhorabuena! Por tu dedicación, has subido tu peque-rango a: ${game.getRank()}`;
+    };
+
+    var newWorkedTime = getNewAllTimeWorkedTime(workedTime, timeWorkedToday);
+    //TODO: Update el tiempo trabajado total.
+    
+    return respuesta;
+}
+
+function getHoursFromWorkedTime(workedTime){
+    return parseInt(workedTime.split(":")[0]);
+}
+
+function isFriday() {
+    return new Date().getDay() == 5
+}
 
 
 module.exports = {
-    calculateWorkedTime
+    calculateWorkedTime,
+    getAllTimeWorkedTime,
+    getNewAllTimeWorkedTime,
+    addDayTimeToTotal,
+    getHoursFromWorkedTime,
+    isFriday
 }
