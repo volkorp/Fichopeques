@@ -1,14 +1,11 @@
-var mat = [{"ID":"1", "Mark_time":"2023-09-13 16:26:55", "Type": "Entrada"}, 
-            {"ID":"3", "Mark_time":"2023-09-13 17:26:55", "Type": "Salida"}, 
-            {"ID":"7", "Mark_time":"2023-09-13 19:26:55", "Type": "Entrada"}, 
-            {"ID":"9", "Mark_time":"2023-09-13 21:47:57", "Type": "Salida"},
-            {"ID":"12", "Mark_time":"2023-09-15 19:26:55", "Type": "Entrada"}, 
-            {"ID":"14", "Mark_time":"2023-09-15 21:47:57", "Type": "Salida"}];
+const dbFunctions = require('../Services/DB_functions');
+const { detectRankChange, getRank } = require('../Gamification/Game')
 
 function calculateWorkedTime(resultset){
-    if(hasIncidence(resultset)){
-        return "Se deben corregir las incidencias antes de hacer el cálculo.";
-    }
+    // if(hasIncidence(resultset)){
+    //     console.log("Se deben corregir las incidencias antes de hacer el cálculo.");
+    //     return null;
+    // }
 
     var tiempoTrabajado = 0;
     var entrada;
@@ -104,14 +101,8 @@ function huntIncidences(resultset){
     return incidences;
 }
 
-function getAllTimeWorkedTime(employee){
-    // TODO:
-    let query = `SELECT time_worked FROM total_worked WHERE employee = '${employee}'`;
-    var resultset = query;
-    return '4513:12:11'; //TODO: Query tiempo trabajado total
-}
-
 function getNewAllTimeWorkedTime(currentWorkedTime, timeAdding){
+    console.log("Holi");
     var [currentHours, currentMins, currentSecs] = currentWorkedTime.split(":");
     var [addingHours, addingMins, addingSecs] = timeAdding.split(":");
 
@@ -123,17 +114,32 @@ function getNewAllTimeWorkedTime(currentWorkedTime, timeAdding){
 }
 
 function addDayTimeToTotal(employee, timeWorkedToday){
-    var respuesta = `Hoy has trabajado ${timeWorkedToday}.`;
-    var workedTime = getAllTimeWorkedTime(employee);
-    
-    if (didRankChanged(employee, workedTime)){
-        respuesta += `\\n\\n¡Enhorabuena! Por tu dedicación, has subido tu peque-rango a: ${game.getRank()}`;
-    };
+    dbFunctions.getAllTimeWorkedTime(employee).then(response => {
+        var respuesta = `Hoy has trabajado ${timeWorkedToday}.`;
+        console.log(response[0]);
+        if(response[0] && response.statusCode){
+            var workedTime = getHoursFromWorkedTime(response[0].time_worked);
+            var newWorkedTime = getHoursFromWorkedTime(timeWorkedToday);
 
-    var newWorkedTime = getNewAllTimeWorkedTime(workedTime, timeWorkedToday);
+            if (detectRankChange(workedTime, newWorkedTime)){
+                respuesta += `\\n\\n¡Enhorabuena! Por tu dedicación, has subido tu peque-rango a: ${getRank()}`;
+            };
+
+            updateWorkedTime();
+
+            return respuesta;
+        } else { 
+            //TO-DO: handle
+        }
+        
+    }, err =>{
+        console.error(`[Error] `, err.message);
+    });
+}
+
+function updateWorkedTime(){
+    // var newWorkedTime = getNewAllTimeWorkedTime(workedTime, timeWorkedToday);
     //TODO: Update el tiempo trabajado total.
-    
-    return respuesta;
 }
 
 function getHoursFromWorkedTime(workedTime){
@@ -146,10 +152,9 @@ function isFriday() {
 
 
 module.exports = {
-    calculateWorkedTime,
-    getAllTimeWorkedTime,
-    getNewAllTimeWorkedTime,
-    addDayTimeToTotal,
+    calculateWorkedTime,        
+    addDayTimeToTotal,    
     getHoursFromWorkedTime,
-    isFriday
+    isFriday,
+    getNewAllTimeWorkedTime
 }

@@ -1,7 +1,5 @@
 const ranks = require('./Game_ranks');
 const achievements = require('./Game_achievements');
-const calculations = require('../Services/Calculations');
-
 
 function main(){
     // console.log(ranks.didRankChanged('0123', '1700:22:11'));
@@ -10,8 +8,12 @@ function main(){
     console.log(new Date().getDay() == 5);
 }
 
-function getRank(employee){
-    return ranks.getCurrentRank(employee);
+function getRank(workedHours){
+    return ranks.getCurrentRank(workedHours);
+}
+
+function detectRankChange(workedTime, newWorkedTime){
+    return ranks.didRankChanged(workedTime, newWorkedTime);
 }
 
 function doAntiWorktime(antiWorkedTime){
@@ -19,11 +21,12 @@ function doAntiWorktime(antiWorkedTime){
 }
 
 function getAntiWorkedTime(antiWorkedTime){
-    return 40 - parseInt(calculations.getHoursFromWorkedTime(antiWorkedTime));
+    return 40 - antiWorkedTime;
 }
 
-main();
+// main();
 
 module.exports = {
-    getRank
+    getRank,
+    detectRankChange
 }

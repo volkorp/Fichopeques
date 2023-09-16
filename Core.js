@@ -52,6 +52,22 @@ bot.action('Salida', async (ctx) => {
                 log("Salida", resultado);
                 ctx.reply("Fichaje enviado!");
             }
+            
+            if(isOwner(ctx.chat.id)){
+                dbFunctions.getWorkedTimeToday(ctx.chat.id, yearMonthDay()).then(result => {
+                    console.log("Terminó");
+                    
+                    if(result && result.statusCode){
+                        var response = calculations.calculateWorkedTime(result);                        
+                        log("Salida", response);
+                        if (response != null ){
+                            ctx.reply(calculations.addDayTimeToTotal(ctx.chat.id, response));
+                        }
+                    }
+                }, err => {
+                    console.error(`[Error] `, err.message);
+                });
+            }
         }, err =>{
             console.error(`[Error] `, err.message);
         });
@@ -184,6 +200,13 @@ function yearMonth(){
 
     var year = new Date().getFullYear();
     return `${year}-${month}`;
+}
+
+function yearMonthDay(){
+    var day = new Date().getDate();
+    if(day < 10) day = `0${day}`;
+
+    return `${yearMonth()}-${day}`;
 }
 
 function parseToMessage(collection){        

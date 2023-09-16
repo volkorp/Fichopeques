@@ -60,11 +60,42 @@ function getWorkedTime(employee, yearMonth){
   });
 }
 
+function getWorkedTimeToday(employee, yearMonthDay){
+  return new Promise((resolve, reject) => {      
+    try {
+      const data = db.query_noParams(`SELECT time_mark, type FROM attendance WHERE employee = '${employee}' AND Time_mark LIKE '${yearMonthDay}%'`);
+      data.statusCode = 200;      
+      resolve(data);
+        
+    } catch (err) {
+      console.error(err);
+      let response = { message: 'Error interno del servidor.', statusCode: 500 };
+      reject(response);
+    }
+  });
+}
 
+function getAllTimeWorkedTime(employee){
+  return new Promise((resolve, reject) => {      
+    try {
+      console.log("getAllTimeWorkedTime");
+      const data = db.query_noParams( `SELECT time_worked FROM total_worked WHERE employee = '${employee}'`);
+      data.statusCode = 200;
+      resolve(data);
+        
+    } catch (err) {
+      console.error(err);
+      let response = { message: 'Error interno del servidor.', statusCode: 500 };
+      reject(response);
+    }
+  });
+}
 
   module.exports = {
     getLastTenMarksEmployee,
     getMarksFromEmployee,
     getWorkedTime,
+    getWorkedTimeToday,
+    getAllTimeWorkedTime,
     insertNewTime
   }

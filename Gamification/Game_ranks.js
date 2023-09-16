@@ -1,22 +1,17 @@
 const ranks = require('./Config/Ranks.json');
 const ranks_admin = require('./Config/Ranks_admin.json');
-const calculations = require('../Services/Calculations')
 
 const isAdmin = true; //TODO: llevar a función y a fichero a parte.
 
-function getCurrentRank(employee){
-    var workedTime = getAllTimeWorkedTime(employee);
+function getCurrentRank(workedTime){
     return isAdmin ? getAdminRank(workedTime) : getRank(workedTime);
 }
 
-function didRankChanged(employee, timeAdding) {
-    var currentWorkedTime = calculations.getAllTimeWorkedTime(employee);
-    var newWorkedTime = calculations.getNewAllTimeWorkedTime(currentWorkedTime, timeAdding);
-    return getRank(currentWorkedTime) != getRank(newWorkedTime);
+function didRankChanged(workedTime, newWorkedTime) {
+    return getRank(workedTime) != getRank(newWorkedTime);
 }
 
-function getRank(workedTime){    
-    var workedHours = calculations.getHoursFromWorkedTime(workedTime);
+function getRank(workedHours){
     var rankName = "";
 
     for(element in ranks){        
@@ -29,8 +24,7 @@ function getRank(workedTime){
 }
 
 // ============ADMIN==============
-function getAdminRank(workedTime){    
-    var workedHours = calculations.getHoursFromWorkedTime(workedTime);
+function getAdminRank(workedHours){ 
     var rankName = "";
 
     for(element in ranks_admin){        
