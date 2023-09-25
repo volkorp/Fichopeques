@@ -1,8 +1,9 @@
 
 const { Telegraf } = require('telegraf');
-const { TOKEN, OWNER_ID, ADMIN_ID } = require('./Config/config.json');
+const { TOKEN, TOKEN_TEST, OWNER_ID, ADMIN_ID } = require('./Config/config.json');
 const { C_ID, A_ID, C_NAME, A_NAME } = require('./Config/Whitelist.json')
-const bot = new Telegraf(TOKEN);
+const workingTOKEN = process.platform === 'linux' ? TOKEN : TOKEN_TEST;
+const bot = new Telegraf(workingTOKEN);
 
 const dbFunctions = require('./Services/DB_functions');
 const calculations = require('./Services/Calculations');
@@ -218,7 +219,12 @@ function parseToMessage(collection){
       for (var key in obj){
         var value = obj[key];
 
-        response += key + ": "  + value + " | "
+        if(key == "Time_mark"){
+            response += "Registro: "  + parseToFriendlyDate(value) + " | "
+        }else{
+            response += key + ": "  + value + " | "
+        }
+        
         
         if(key == "Type"){
             response += "\n";
@@ -227,6 +233,11 @@ function parseToMessage(collection){
     }
 
     return response;
+}
+
+function parseToFriendlyDate(date){
+    var parsedDate = new Date(date);
+    return parsedDate.toLocaleString();
 }
 
 function isAdmin(id){
